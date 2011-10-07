@@ -272,6 +272,33 @@ function eqPos(a, b, msg) {
   eq(a.line, b.line, msg);
   eq(a.ch, b.ch, msg);
 }
+function eqStates(cm, tokens, ignore){
+  var tokenIdx = 0;
+  var tokenCount = tokens.length;
+  var lineCount = cm.lineCount();
+  for (var line = 0; line < lineCount; line++) {
+    var idx = 0;
+    for(;;){
+      var token = cm.getTokenAt({line:line, ch:idx});
+      if (token.end + 1 === idx) break;
+      idx = token.end + 1;
+      
+      if (tokenIdx >= tokenCount) {
+        throw new Failure("There are more tokens returned from cm than defined by the test.");
+      }
+      if(!ignore || !ignore(token)){
+        var compareTo = tokens[tokenIdx++];
+        if(compareTo !== null){ // if null, the test for this token is skipped
+          for (var p in compareTo) {
+            if (compareTo.hasOwnProperty(p)) {
+              eq(compareTo[p], token[p], p);
+            }
+          }
+        }
+      }
+    }
+  }
+}
 function is(a, msg) {
   if (!a) throw new Failure("assertion failed" + (msg ? " (" + msg + ")" : ""));
 }
