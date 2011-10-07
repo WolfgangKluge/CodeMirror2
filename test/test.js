@@ -195,6 +195,24 @@ testCM("undoMultiLine", function(cm) {
   eq(cm.getValue(), "abc\ndef\nghi");
 }, {value: "abc\ndef\nghi"});
 
+// modes (every test should run > 20ms, see http://ejohn.org/blog/accuracy-of-javascript-time)
+test("javascript-mode")
+
+testCM("states", function(cm) {
+  eqStates(cm, [
+    {className: "comment"},
+    {className: "comment"},
+    {className: "keyword", string: "function"},
+    {string: "("},
+    {string: ")"},
+    {string: "{"},
+    {string: "}"}
+  ], function(token) {
+    return token.className === null && /^\s*$/.test(token.string);
+  });
+}, {value: "\n/*\r\n*/function(){ \n  \n\n  }"});
+
+
 // Scaffolding
 
 function htmlEscape(str) {
