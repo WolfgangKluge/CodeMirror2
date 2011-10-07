@@ -1,5 +1,7 @@
 var tests = [];
 
+// internals
+test("codeMirror");
 test("fromTextArea", function() {
   var te = document.getElementById("code");
   te.value = "CONTENT";
@@ -214,27 +216,55 @@ function testCM(name, run, opts) {
 }
 
 function runTests() {
-  var failures = [], run = 0;
+  var failures = [], run = 0, html = [], start, diff;
   for (var i = 0; i < tests.length; ++i) {
     var test = tests[i];
-    try {test.func();}
-    catch(e) {
-      if (e instanceof Failure)
-        failures.push({type: "failure", test: test.name, text: e.message});
-      else
-        failures.push({type: "error", test: test.name, text: e.toString()});
+    if(test.func){
+      for (var j = 0; j < 1; ++j) { // run each test x times (for better benchmark results) TODO: make this optional
+        try {test.func();}
+        catch(e) {
+          if (e instanceof Failure)
+            failures.push({type: "failure", test: test.name, text: e.message});
+          else
+            failures.push({type: "error", test: test.name, text: e.toString()});
+        }
+      }
+      run++;
     }
-    run++;
+    else
+    {
+      if (run > 0) {
+        diff = new Date().getTime() - start;
+        blockStatus(html, run, failures, diff);
+        
+        run = 0;
+        failures.length = 0;
+        
+        html.push('');
+      }
+      html.push('<span class="block">' + test.name + '</span>');
+      start = new Date().getTime();
+    }
   }
-  var html = [run + " tests run."];
-  if (failures.length)
+  
+  diff = new Date().getTime() - start;
+  blockStatus(html, run, failures, diff);
+  
+  document.getElementById("output").innerHTML = html.join("\n");
+}
+function blockStatus(html, run, failures, ms) {
+  html.push(run + " test(s) run in ~" + ms + "ms");
+  if (failures.length) {
     forEach(failures, function(fail) {
       html.push(fail.test + ': <span class="' + fail.type + '">' + htmlEscape(fail.text) + "</span>");
     });
+  }
   else html.push('<span class="ok">All passed.</span>');
-  document.getElementById("output").innerHTML = html.join("\n");
 }
 
+function info(msg) {
+  if (a != b) throw new Failure(a + " != " + b + (msg ? " (" + msg + ")" : ""));
+}
 function eq(a, b, msg) {
   if (a != b) throw new Failure(a + " != " + b + (msg ? " (" + msg + ")" : ""));
 }

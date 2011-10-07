@@ -11,13 +11,15 @@
       .ok {color: #0e0;}
       .failure {color: #e00;}
       .error {color: #c90;}
+	  .block {font-weight: bold; text-decoration: underline;}
     </style>
   </head>
   <body>
     <h1>CodeMirror 2: Test Suite</h1>
 
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
-
+	<p><button onclick="runTests();" type="Button">Re-Run tests</button>
+	
     <pre id=output></pre>
 
     <div style="visibility: hidden" id=testground>
